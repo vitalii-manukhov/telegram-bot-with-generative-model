@@ -4,12 +4,13 @@ from sqlalchemy import insert, select
 
 from config import settings
 
+
 class DataBase:
-    def __init__(self, db_url):
+    def __init__(self):
         self._engine = create_engine(url=settings.url_for_db,
                                      echo=True)
         self._session = sessionmaker(self._engine)
-        self._metadata = MetaData(bind=self._engine)
+        self._metadata = MetaData()
 
     @classmethod
     def get_table(cls, table_name):

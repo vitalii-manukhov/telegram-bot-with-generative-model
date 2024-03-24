@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy import Column, Integer, Date, String, MetaData, Table
 
 
@@ -47,3 +47,11 @@ test_table = Table(
     Column("number", Integer),
     Column("description", String),
 )
+
+
+class KeyboardButton(BaseModel):
+    text: str = '_'
+
+
+class ReplyKeyboardMarkup(BaseModel):
+    keyboard: List[List[KeyboardButton]]

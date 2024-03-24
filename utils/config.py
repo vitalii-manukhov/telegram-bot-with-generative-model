@@ -5,15 +5,15 @@ import os
 
 
 class Settings(BaseSettings):
-    NGROK_TOKEN: str = "_"
-    NGROK_URL: str = "_"
-    TELEGRAM_TOKEN: str = "_"
-    UVICORN_HOST: str = "_"
+    NGROK_TOKEN: str = '_'
+    NGROK_URL: str = '_'
+    TELEGRAM_TOKEN: str = '_'
+    UVICORN_HOST: str = '_'
     UVICORN_PORT: int = 8000
     ADMIN_USER_ID: str = Field(alias="USER_ID")
-    HF_TOKEN: str = "_"
-    PYTHONPATH: str = "_"
-    LOGGER_PATH: str = "_"
+    HF_TOKEN: str = '_'
+    PYTHONPATH: str = '_'
+    LOGGER_PATH: str = '_'
     DB_HOST: str = "127.0.0.1"
     DB_PORT: int = 5432
     DB_USER: str = "postgres"
@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     DB_NAME: str = "postgres"
     DB_DEFAULT_NAME: str = "postgres"
     DB_TABLE_NAME: str = '_'
+    MAIN_FILE: str = '_'
 
     model_config = SettingsConfigDict(env_file=".env",
                                       env_file_encoding="utf-8",
@@ -40,6 +41,13 @@ class Settings(BaseSettings):
             "https://api.telegram.org/"
             f"bot{self.TELEGRAM_TOKEN}/"
             f"sendMessage"
+        )
+
+    @property
+    def url_for_any_method(self):
+        return (
+            "https://api.telegram.org/"
+            f"bot{self.TELEGRAM_TOKEN}/"
         )
 
     @property

@@ -11,3 +11,15 @@ class TelegramBot(Bot):
 
     def process_message(self, message: Message):
         """..."""
+
+
+def main():
+    client = Client()
+    database = DataBase()
+    telegram_bot = TelegramBot(client, database)
+
+    telegram_bot.run_bot()
+
+
+if __name__ == "__main__":
+    main()
