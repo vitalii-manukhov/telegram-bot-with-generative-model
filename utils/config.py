@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     DB_DEFAULT_NAME: str = "postgres"
     DB_TABLE_NAME: str = '_'
     MAIN_FILE: str = '_'
+    HF_CACHE_DIR: str = '_'
 
     model_config = SettingsConfigDict(env_file=".env",
                                       env_file_encoding="utf-8",

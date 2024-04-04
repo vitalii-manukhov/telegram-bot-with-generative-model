@@ -2,11 +2,15 @@
 from fastapi import FastAPI, Request
 import uvicorn
 from config import settings
-from models import Update, ReplyKeyboardMarkup, KeyboardButton
+from models import Update
 import requests
 from aiohttp import ClientSession, ClientResponseError
+from logger import Logger
+from database import DataBase
 
 app = FastAPI()
+
+client_logger = Logger("client_logger")
 
 
 class Client():
@@ -34,47 +38,24 @@ class Client():
 
 @app.post("/")
 async def read_root(request: Request):
+    database = DataBase()
+    database.create_tables()
+    client_logger.info("Received POST request to the root")
     update = Update.model_validate(await request.json())
-    # reply = f"Ваше имя: {update.message.from_user.first_name}"
+    database.record_update(update)
 
-    # data = {
-    #     "chat_id": update.message.chat.chat_id,
-    #     "text": reply
-    # }
+    from telegram_bot import TelegramBot
+    data = TelegramBot.process_message(message=update.message)
+    database.record_bot_reply(data)
 
-    # async with ClientSession() as session:
-    #     async with session.post(settings.url_for_send_message,
-    #                             data=data) as response:
-    #         if response.status != 200:
-    #             raise ClientResponseError(
-    #                 response.request_info,
-    #                 response.history,
-    #                 message="Unexpected status code: {response.status}"
-    #             )
+    async with ClientSession() as session:
+        async with session.post(settings.url_for_send_message,
+                                data=data) as response:
+            client_logger.info("Post request sent")
+            if response.status != 200:
+                raise ClientResponseError(
+                    response.request_info,
+                    response.history,
+                    message="Unexpected status code: {response.status}")
 
-    button_text = "Пожелай мне чего-нибудь хорошего!"
-    message_text = "Нажми на кнопку"
-    data = {
-        "chat_id": update.message.chat.chat_id,
-        "text": message_text,
-        "reply_markup": ReplyKeyboardMarkup(
-            keyboard=[[KeyboardButton(text=button_text)]]).model_dump_json()
-    }
-
-    response = requests.post(
-        settings.url_for_send_message,
-        data=data
-    )
-
-    print(response.json())
-
-    # async with ClientSession() as session:
-    #     async with session.post(settings.url_for_any_method +
-    #                             "editMessageReplyMarkup",
-    #                             data=data) as response:
-    #         if response.status != 200:
-    #             raise ClientResponseError(
-    #                 response.request_info,
-    #                 response.history,
-    #                 message=f"Unexpected status code: {response.status}"
-    #             )
+    return {"status_code": 200}

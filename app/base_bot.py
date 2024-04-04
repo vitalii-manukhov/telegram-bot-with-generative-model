@@ -2,15 +2,12 @@ from abc import ABC, abstractmethod
 from client import Client
 from logger import Logger
 from models import Message
-from typing import Union
 from aiohttp import ClientResponseError
 
 
 class Bot(ABC):
-    _client: Union[Client, None] = None
-    _logger: Union[Logger, None] = None
-
-    def __init__(self, client: Client):
+    def __init__(self):
+        client = Client()
         self._client = client
 
         logger_name = self.__class__.__name__.lower() + "_logger"
@@ -23,6 +20,7 @@ class Bot(ABC):
         self._client.get_me()
 
         try:
+            self._logger.info("Server is up and running")
             self._client.run_server()
         except ClientResponseError as exception:
             self._logger.error(exception)

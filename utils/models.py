@@ -1,6 +1,8 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from sqlalchemy import Column, Integer, Date, String, MetaData, Table
+
+from sqlalchemy import Column, MetaData, Table
+from sqlalchemy import Integer, Date, String, Boolean
 
 
 class Chat(BaseModel):
@@ -39,13 +41,28 @@ class Update(BaseModel):
 
 metadata_object = MetaData()
 
-test_table = Table(
-    "test",
+updates_table = Table(
+    "updates",
     metadata_object,
-    Column("id", Integer, primary_key=True),
+    Column("update_id", Integer, primary_key=True),
+    Column("message_id", Integer),
+    Column("user_id", Integer),
+    Column("is_bot", Boolean),
+    Column("first_name", String),
+    Column("username", String),
+    Column("language_code", String),
+    Column("chat_id", Integer),
+    Column("chat_type", String),
     Column("date", Date),
-    Column("number", Integer),
-    Column("description", String),
+    Column("text", String),
+)
+
+replies_table = Table(
+    "replies",
+    metadata_object,
+    Column("reply_id", Integer, primary_key=True),
+    Column("chat_id", Integer),
+    Column("text", String)
 )
 
 
