@@ -1,12 +1,12 @@
-from base_bot import Bot
-from models import Message, KeyboardButton, ReplyKeyboardMarkup
+from app.base_bot import Bot
+from typing import Dict, Any
 import torch
 
 from transformers import pipeline
 from transformers import FSMTForConditionalGeneration, FSMTTokenizer
 
-from typing import Dict, Any
-from config import settings
+from utils.models import Message, KeyboardButton, ReplyKeyboardMarkup
+from utils.config import settings
 
 import os
 os.environ['HF_HOME'] = settings.HF_CACHE_DIR
@@ -99,12 +99,3 @@ def translate_reply(text: str) -> str:
     outputs = model.generate(input_ids)
 
     return tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-
-def main():
-    telegram_bot = TelegramBot()
-    telegram_bot.run_bot()
-
-
-if __name__ == "__main__":
-    main()

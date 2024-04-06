@@ -1,12 +1,14 @@
 """..."""
 from fastapi import FastAPI, Request
 import uvicorn
-from config import settings
-from models import Update
-import requests
 from aiohttp import ClientSession, ClientResponseError
-from logger import Logger
-from database import DataBase
+import requests
+
+from app.logger import Logger
+from app.db_helper import db_helper
+
+from utils.config import settings
+from utils.models import Update
 
 app = FastAPI()
 
@@ -19,7 +21,7 @@ class Client():
         print(response.json())
 
     def run_server(self):
-        uvicorn.run("client:app",
+        uvicorn.run("app.client:app",
                     port=settings.UVICORN_PORT,
                     host=settings.UVICORN_HOST,
                     reload=True)
@@ -28,7 +30,8 @@ class Client():
         pass
 
     def set_webhook(self):
-        requests.get(settings.url_for_webhook)
+        response = requests.get(settings.url_for_webhook)
+        print(response.json())
 
     def send_message(self, chat_id: int, data):
         response = requests.post(settings.url_for_send_message,
@@ -38,15 +41,14 @@ class Client():
 
 @app.post("/")
 async def read_root(request: Request):
-    database = DataBase()
-    database.create_tables()
+    db_helper.create_tables()
     client_logger.info("Received POST request to the root")
     update = Update.model_validate(await request.json())
-    database.record_update(update)
+    db_helper.record_update(update)
 
-    from telegram_bot import TelegramBot
+    from app.telegram_bot import TelegramBot
     data = TelegramBot.process_message(message=update.message)
-    database.record_bot_reply(data)
+    db_helper.record_bot_reply(data)
 
     async with ClientSession() as session:
         async with session.post(settings.url_for_send_message,

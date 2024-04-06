@@ -2,15 +2,16 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, Table
 from sqlalchemy import select
 
-from config import settings
-from models import Update, metadata_object
+from utils.config import settings
+from utils.models import Update, metadata_object
+
 from typing import Dict, Any
 
 
-class DataBase:
+class DatabaseHelper:
     def __init__(self):
         self._engine = create_engine(url=settings.url_for_db,
-                                     echo=True)
+                                     echo=False)
         self._session = sessionmaker(self._engine)
         self._metadata = metadata_object
 
@@ -57,3 +58,6 @@ class DataBase:
 
     def drop_tables(self):
         self._metadata.drop_all(self._engine)
+
+
+db_helper = DatabaseHelper()

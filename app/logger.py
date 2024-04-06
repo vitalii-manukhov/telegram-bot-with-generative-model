@@ -1,5 +1,5 @@
 import logging
-from config import settings
+from utils.config import settings
 
 
 class Logger:

@@ -1,8 +1,9 @@
-from abc import ABC, abstractmethod
-from client import Client
-from logger import Logger
-from models import Message
+from app.client import Client
+from app.logger import Logger
+
 from aiohttp import ClientResponseError
+from abc import ABC, abstractmethod
+from utils.models import Message
 
 
 class Bot(ABC):
