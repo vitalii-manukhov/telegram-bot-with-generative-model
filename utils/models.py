@@ -1,9 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
 
-from sqlalchemy import Column, MetaData, Table
-from sqlalchemy import Integer, Date, String, Boolean
-
 
 class Chat(BaseModel):
     chat_id: int = Field(alias="id")
@@ -38,32 +35,22 @@ class Update(BaseModel):
     update_id: int
     message: Message
 
+    def full_unpack(self):
+        data = {
+            "update_id": self.update_id,
+            "message_id": self.message.message_id,
+            "user_id": self.message.from_user.user_id,
+            "is_bot": self.message.from_user.is_bot,
+            "first_name": self.message.from_user.first_name,
+            "username": self.message.from_user.username,
+            "language_code": self.message.from_user.language_code,
+            "chat_id": self.message.chat.chat_id,
+            "chat_type": self.message.chat.chat_type,
+            "date": self.message.date,
+            "text": self.message.text
+        }
 
-metadata_object = MetaData()
-
-updates_table = Table(
-    "updates",
-    metadata_object,
-    Column("update_id", Integer, primary_key=True),
-    Column("message_id", Integer),
-    Column("user_id", Integer),
-    Column("is_bot", Boolean),
-    Column("first_name", String),
-    Column("username", String),
-    Column("language_code", String),
-    Column("chat_id", Integer),
-    Column("chat_type", String),
-    Column("date", Date),
-    Column("text", String),
-)
-
-replies_table = Table(
-    "replies",
-    metadata_object,
-    Column("reply_id", Integer, primary_key=True),
-    Column("chat_id", Integer),
-    Column("text", String)
-)
+        return data
 
 
 class KeyboardButton(BaseModel):

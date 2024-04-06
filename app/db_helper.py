@@ -1,57 +1,31 @@
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, Table
-from sqlalchemy import select
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from utils.config import settings
-from utils.models import Update, metadata_object
+from utils.schemas import Update, Base, BotReply
 
-from typing import Dict, Any
+from typing import Any
 
 
 class DatabaseHelper:
     def __init__(self):
-        self._engine = create_engine(url=settings.url_for_db,
-                                     echo=False)
-        self._session = sessionmaker(self._engine)
-        self._metadata = metadata_object
+        self._engine = create_async_engine(url=settings.url_for_db,
+                                           echo=False)
+        self._session = async_sessionmaker(
+            self._engine,
+            autocommit=False
+        )
+        self._metadata = Base.metadata
 
-    @classmethod
-    def get_table(cls, table_name):
-        return Table(table_name, cls._metadata, autoload_with=cls._engine)
+    async def record_update(self, data: dict[str, Any]):
+        update = Update(**data)
+        async with self._session.begin() as session:
+            session.add(update)
+            await session.commit()
 
-    def record_update(self, update: Update):
-        with self._engine.connect() as conn:
-            with self._session(bind=conn) as session:
-                data = {
-                    "update_id": update.update_id,
-                    "message_id": update.message.message_id,
-                    "user_id": update.message.from_user.user_id,
-                    "is_bot": update.message.from_user.is_bot,
-                    "first_name": update.message.from_user.first_name,
-                    "username": update.message.from_user.username,
-                    "language_code": update.message.from_user.language_code,
-                    "chat_id": update.message.chat.chat_id,
-                    "chat_type": update.message.chat.chat_type,
-                    "date": update.message.date,
-                    "text": update.message.text
-                }
-                session.add(data)
-                session.commit()
-
-            conn.commit()
-
-    def record_bot_reply(self, data: Dict[str, Any]):
-        with self._engine.connect() as conn:
-            with self._session(bind=conn) as session:
-                session.add(data)
-                session.commit()
-
-            conn.commit()
-
-    def read_data(self, table: Table):
-        with self._engine.connect() as conn:
-            query_statement = select(table)
-            conn.execute(query_statement)
+    async def record_bot_reply(self, reply: BotReply):
+        async with self._session.begin() as session:
+            session.add(reply)
+            await session.commit()
 
     def create_tables(self,):
         self._metadata.create_all(self._engine)

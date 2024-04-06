@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
 import sys
 import os
 
@@ -10,8 +9,6 @@ class Settings(BaseSettings):
     TELEGRAM_TOKEN: str = '_'
     UVICORN_HOST: str = '_'
     UVICORN_PORT: int = 8000
-    ADMIN_USER_ID: str = Field(alias="USER_ID")
-    HF_TOKEN: str = '_'
     PYTHONPATH: str = '_'
     LOGGER_PATH: str = '_'
     DB_HOST: str = "127.0.0.1"
@@ -19,9 +16,6 @@ class Settings(BaseSettings):
     DB_USER: str = "postgres"
     DB_PASSWORD: int = -1
     DB_NAME: str = "postgres"
-    DB_DEFAULT_NAME: str = "postgres"
-    DB_TABLE_NAME: str = '_'
-    MAIN_FILE: str = '_'
     HF_CACHE_DIR: str = '_'
 
     model_config = SettingsConfigDict(env_file=".env",
@@ -45,10 +39,11 @@ class Settings(BaseSettings):
         )
 
     @property
-    def url_for_any_method(self):
+    def url_for_delete_webhook(self):
         return (
             "https://api.telegram.org/"
             f"bot{self.TELEGRAM_TOKEN}/"
+            f"deleteWebhook"
         )
 
     @property

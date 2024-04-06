@@ -18,7 +18,6 @@ class Bot(ABC):
         self._logger.info("Bot is up and running")
         self._client.set_webhook()
         self._logger.info("Webhook set")
-        self._client.get_me()
 
         try:
             self._logger.info("Server is up and running")
